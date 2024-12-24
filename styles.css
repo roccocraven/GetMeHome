@@ -1,0 +1,115 @@
+/* General Reset */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: Arial, sans-serif;
+    background-color: #ffffff; /* Light background for a clean look */
+    color: #333; /* Dark text for readability */
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 100vh; /* Ensures full-screen height */
+}
+
+/* Page Title */
+h1 {
+    margin-bottom: 20px;
+    font-size: 24px;
+    text-align: center;
+    color: #549aa1;
+}
+
+/* Form Styling */
+form {
+    display: flex;
+    flex-wrap: wrap; /* Wrap inputs if screen is small */
+    justify-content: center;
+    gap: 10px; /* Space between input fields */
+    max-width: 600px; /* Limit form width */
+    margin: 20px;
+}
+
+/* Input and Dropdown Fields */
+input, select, button {
+    padding: 8px; /* Inner padding for fields */
+    font-size: 14px; /* Compact font size */
+    width: 150px; /* Equal width for all inputs */
+    border: 1px solid #ccc; /* Light border for inputs */
+    border-radius: 4px; /* Rounded corners for modern look */
+    transition: all 0.3s ease; /* Smooth hover effects */
+}
+/* Random button style */
+#randomButton {
+    margin-left: 5px;
+    padding: 8px;
+    width: 30px; /* Small size for question mark button */
+    border: 1px solid #ccc;
+    border-radius: 50%; /* Circle button */
+    background-color: #4CAF50; /* Green */
+    color: white;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+/* Hover effect for random button */
+#randomButton:hover {
+    background-color: #45a049;
+}
+/* Focus and Hover Effects for Inputs and Dropdowns */
+input:focus, select:focus {
+    border-color: #4CAF50; /* Green border on focus */
+    outline: none; /* Remove default outline */
+    box-shadow: 0 0 5px rgba(76, 175, 80, 0.5); /* Add subtle shadow */
+}
+
+/* Button Styling */
+button {
+    background-color: #4CAF50; /* Green background */
+    color: white; /* White text */
+    border: none; /* Remove border */
+    cursor: pointer; /* Pointer cursor on hover */
+    border-radius: 4px;
+    transition: background-color 0.3s ease;
+}
+
+/* Button Hover Effect */
+button:hover {
+    background-color: #45a049; /* Slightly darker green on hover */
+}
+
+/* Responsive Design */
+@media (max-width: 600px) {
+    input, select, button {
+        width: 100%; /* Full width for smaller screens */
+    }
+
+    form {
+        flex-direction: column; /* Stack fields vertically */
+        align-items: stretch; /* Stretch fields to fit container */
+    }
+}
+
+#map {
+    height: 400px; /* Height of the map */
+    width: 100%; /* Full width of the page */
+    margin-top: 2rem; /* Space above the map */
+}
+
+input[type="date"] {
+    padding: 8px;
+    font-size: 14px;
+    width: 150px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+}
+
+input[type="date"]:focus {
+    border-color: #4CAF50;
+    outline: none;
+    box-shadow: 0 0 5px rgba(76, 175, 80, 0.5);
+}
