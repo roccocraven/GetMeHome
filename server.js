@@ -1,10 +1,12 @@
 const express = require("express");
 const cors = require("cors");
 const mongoose = require("mongoose");
-require("dotenv").config(); // For environment variables
+require("dotenv").config(); // Load environment variables
 
 const app = express();
 const port = process.env.PORT || 5000;
+
+console.log("MONGO_URI:", process.env.MONGO_URI);
 
 // MongoDB Connection
 mongoose
@@ -12,24 +14,27 @@ mongoose
         useNewUrlParser: true,
         useUnifiedTopology: true,
     })
-    .then(() => console.log("MongoDB connected"))
-    .catch((err) => console.error("MongoDB connection error:", err));
+    .then(() => console.log("✅ MongoDB connected successfully"))
+    .catch((err) => {
+        console.error("❌ MongoDB connection error:", err.message);
+        process.exit(1); // Exit process if connection fails
+    });
 
 // Schema for Travel Data
 const travelSchema = new mongoose.Schema({
-    mode: String,
-    from: String,
-    to: String,
-    price: Number,
-    duration: Number,
-    departureDate: String,
+    mode: { type: String, required: true },
+    from: { type: String, required: true },
+    to: { type: String, required: true },
+    price: { type: Number, required: true },
+    duration: { type: Number, required: true },
+    departureDate: { type: String, required: true },
     fromCoords: {
-        lat: Number,
-        lng: Number,
+        lat: { type: Number, required: true },
+        lng: { type: Number, required: true },
     },
     toCoords: {
-        lat: Number,
-        lng: Number,
+        lat: { type: Number, required: true },
+        lng: { type: Number, required: true },
     },
 });
 
@@ -45,47 +50,57 @@ app.use((req, res, next) => {
     next();
 });
 
-// Home route
+// Home Route
 app.get("/", (req, res) => {
     res.send("Welcome to the Travel Comparison Backend!");
 });
 
-// Search route
+// Search Route
 app.get("/search", async (req, res) => {
     try {
         const { origin, destination, mode, maxPrice, sortBy, departureDate } = req.query;
+
+        // Validate required query parameters
+        if (!origin || !destination) {
+            return res.status(400).json({ error: "Origin and destination are required." });
+        }
 
         // Build the query dynamically
         let query = {};
         if (origin) query.from = { $regex: new RegExp(origin, "i") }; // Case insensitive
         if (destination) query.to = { $regex: new RegExp(destination, "i") };
         if (mode) query.mode = mode;
-        if (maxPrice) query.price = { $lte: parseInt(maxPrice) };
+        if (maxPrice) query.price = { $lte: parseFloat(maxPrice) };
         if (departureDate) query.departureDate = departureDate;
 
         // Perform search in the database
         let results = await Travel.find(query);
 
-        // Sorting logic
-        if (sortBy === "price") {
-            results = results.sort((a, b) => a.price - b.price); // Sort by cheapest
-        } else if (sortBy === "duration") {
-            results = results.sort((a, b) => a.duration - b.duration); // Sort by shortest duration
+        // Sorting logic using MongoDB
+        if (sortBy) {
+            const sortOption = sortBy === "price" ? { price: 1 } : { duration: 1 };
+            results = await Travel.find(query).sort(sortOption);
         }
 
         // Return results
         if (results.length > 0) {
             res.json(results);
         } else {
-            res.status(404).json({ error: "No travel options found" });
+            res.status(404).json({ error: "No travel options found." });
         }
     } catch (error) {
-        console.error("Error fetching results:", error);
+        console.error("Error fetching results:", error.message);
         res.status(500).json({ error: "Internal Server Error" });
     }
 });
 
+// 404 Route - Handle invalid endpoints
+app.use((req, res) => {
+    res.status(404).json({ error: "Route not found" });
+});
+
 // Start the server
 app.listen(port, () => {
-    console.log(`Server is running on http://localhost:${port}`);
+    console.log(`🚀 Server is running in ${process.env.NODE_ENV || "development"} mode`);
+    console.log(`🌐 Listening on http://localhost:${port}`);
 });
