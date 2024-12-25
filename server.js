@@ -3,17 +3,16 @@ const cors = require("cors");
 const mongoose = require("mongoose");
 require("dotenv").config(); // Load environment variables
 
+
 const app = express();
 const port = process.env.PORT || 5000;
 
-console.log("MONGO_URI:", process.env.MONGO_URI);
+
+console.log("MONGO_URI:", process.env.MONGO_URI); // Debugging
 
 // MongoDB Connection
 mongoose
-    .connect(process.env.MONGO_URI, {
-        useNewUrlParser: true,
-        useUnifiedTopology: true,
-    })
+    .connect(process.env.MONGO_URI)
     .then(() => console.log("✅ MongoDB connected successfully"))
     .catch((err) => {
         console.error("❌ MongoDB connection error:", err.message);
