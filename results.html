@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Search Results with Map</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+        }
+
+        h1 {
+            text-align: center;
+            margin-top: 20px;
+        }
+
+        #results {
+            margin: 20px auto;
+            width: 80%;
+            padding: 10px;
+            border: 1px solid #ddd;
+        }
+
+        #map {
+            height: 400px;
+            width: 80%;
+            margin: 20px auto;
+            border: 1px solid #ddd;
+        }
+
+        .result-item {
+            padding: 10px;
+            border-bottom: 1px solid #ccc;
+        }
+
+        .result-item:last-child {
+            border-bottom: none;
+        }
+        
+    </style>
+
+    <!-- Google Maps API -->
+    <script src="https://maps.googleapis.com/maps/api/js?key=YOUR_API_KEY"></script>
+</head>
+<body>
+    <h1>Search Results</h1>
+    <div id="results">Loading results...</div>
+    <div id="map"></div>
+
+    <script>
+        
+        // Function to get query parameters from URL
+        function getQueryParams() {
+            const params = new URLSearchParams(window.location.search);
+            return {
+                origin: params.get("origin"),
+                destination: params.get("destination"),
+                mode: params.get("mode"), // Fetch preferred mode
+            };
+        }
+
+        // Initialize Google Map
+        let map;
+        function initMap() {
+            map = new google.maps.Map(document.getElementById("map"), {
+                center: { lat: 0, lng: 0 }, // Default center (updated dynamically later)
+                zoom: 2, // Start with world view
+            });
+        }
+
+        // Fetch results from the backend and display on map
+        fetch(`/search?origin=New York&destination=London&mode=plane&maxPrice=500`)
+    .then(response => response.json())
+    .then(data => {
+        const resultsDiv = document.getElementById("results");
+        resultsDiv.innerHTML = "";
+
+        data.forEach(item => {
+            const resultItem = `
+                <div class="result-item">
+                    <p><strong>Mode:</strong> ${item.mode}</p>
+                    <p><strong>From:</strong> ${item.from}</p>
+                    <p><strong>To:</strong> ${item.to}</p>
+                    <p><strong>Price:</strong> $${item.price}</p>
+                    <p><strong>Duration:</strong> ${item.duration} hours</p>
+                    <p><strong>Departure Date:</strong> ${item.departureDate}</p>
+                </div>
+            `;
+            resultsDiv.innerHTML += resultItem;
+        });
+    })
+    .catch(error => {
+        console.error("Error fetching results:", error);
+        document.getElementById("results").innerHTML = "No results found.";
+    });
+
+        async function fetchResults() {
+            const { origin, destination, mode } = getQueryParams();
+
+            try {
+                const response = await fetch(
+                    `http://localhost:5000/search?origin=${origin}&destination=${destination}`
+                );
+                const data = await response.json();
+
+                const resultsDiv = document.getElementById("results");
+                resultsDiv.innerHTML = ""; // Clear loading text
+
+                if (response.ok) {
+                    const bounds = new google.maps.LatLngBounds(); // Map bounds to fit markers
+
+                    // Filter results by preferred mode if specified
+                    const filteredResults = mode
+                        ? data.filter((item) => item.mode.toLowerCase() === mode.toLowerCase())
+                        : data; // Show all results if no mode is selected
+
+                    // Display error message if no results match
+                    if (filteredResults.length === 0) {
+                        resultsDiv.innerHTML = `<p>No results found for mode: ${mode}</p>`;
+                        return;
+                    }
+
+                    // Process each result
+                    filteredResults.forEach((item) => {
+                        // Display text results
+                        const resultItem = document.createElement("div");
+                        resultItem.classList.add("result-item");
+                        resultItem.innerHTML = `
+                            <p><strong>Mode:</strong> ${item.mode}</p>
+                            <p><strong>From:</strong> ${item.from}</p>
+                            <p><strong>To:</strong> ${item.to}</p>
+                            <p><strong>Price:</strong> $${item.price}</p>
+                        `;
+                        resultsDiv.appendChild(resultItem);
+
+                        // Add markers to the map for "From" and "To" locations
+                        const fromMarker = new google.maps.Marker({
+                            position: item.fromCoords,
+                            map: map,
+                            title: `From: ${item.from}`,
+                        });
+
+                        const toMarker = new google.maps.Marker({
+                            position: item.toCoords,
+                            map: map,
+                            title: `To: ${item.to}`,
+                        });
+
+                        // Extend map bounds to fit markers
+                        bounds.extend(fromMarker.position);
+                        bounds.extend(toMarker.position);
+                    });
+
+                    // Adjust the map view to fit all markers
+                    map.fitBounds(bounds);
+                } else {
+                    resultsDiv.innerHTML = `<p>${data.error}</p>`;
+                }
+            } catch (error) {
+                console.error("Error fetching results:", error);
+                document.getElementById("results").innerHTML = "<p>Failed to load results.</p>";
+            }
+        }
+
+        // Initialize map and load results on page load
+        initMap();
+        fetchResults();
+        console.log(`Fetching data from: http://localhost:5000/search?origin=${origin}&destination=${destination}&mode=${mode}&maxPrice=${maxPrice}&sortBy=${sortBy}`);
+
+    </script>
+</body>
+</html>

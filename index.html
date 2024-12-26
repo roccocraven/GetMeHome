@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Travel Search</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        h1 {
+            text-align: center;
+            margin-top: 20px;
+        }
+
+        form {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin: 20px;
+        }
+
+        input,select, button {
+            padding: 8px;
+            font-size: 14px;
+            width: 150px;         /* Equal width for inputs and dropdowns */
+            box-sizing: border-box; /* Makes sure padding doesn't affect width */
+        }
+        button {
+        background-color: #4CAF50;
+        color: rgb(255, 255, 255);
+        border: none;
+        cursor: pointer;
+    }
+        #results {
+            margin: 10px auto;
+            width: 80%;
+            padding: 10px;
+            border: 1px solid #0c1684;
+        }
+        button:hover {
+        background-color: #45a049;
+    }
+        .result-item {
+            padding: 10px;
+            border-bottom: 1px solid #ccc;
+           
+    }
+        
+
+        .result-item:last-child {
+            border-bottom: none;
+        }
+    
+    </style>
+</head>
+<body>
+    <h1>Travel Comparison</h1> <!-- Justin Timberlake moment  -->
+    <!-- Form for entering search details -->
+    <form id="searchForm">
+        <input type="text" id="origin" placeholder="From" required />
+       <!-- Destination Input with Randomize Button -->
+       <div style="display: flex; align-items: center;">
+        <input type="text" id="destination" placeholder="To" required />
+        <button type="button" id="randomButton" title="Random Destination">?</button>
+    </div>
+
+   
+
+    <!-- Other Inputs -->
+
+        <select id="mode">
+          <option value="">Preferred Mode</option>
+          <option value="walk">Walk</option>
+          <option value="bike">Bike</option>
+          <option value="train">Train</option>
+          <option value="bus">Bus</option>
+          <option value="plane">Plane</option>
+          <option value="boat">Boat</option>
+          <option value="car">Car</option>
+      </select>
+      
+      <input type="date" id="departureDate" required />
+      
+
+      <input type="number" id="maxPrice" placeholder="Max Price ($)" />
+      <select id="sortBy">
+          <option value="">Sort By</option>
+          <option value="price">Cheapest</option>
+          <option value="duration">Fastest</option>
+      </select>
+      <button type="submit">Search</button>
+
+    
+    </form>
+
+    <!-- Container for displaying results -->
+    <div id="results"></div>
+
+    <script>
+        // Handle form submission
+        document.getElementById("searchForm").addEventListener("submit", async (e) => {
+            e.preventDefault(); // Prevent page reload
+
+            // Get user input
+            const origin = document.getElementById("origin").value;
+            const destination = document.getElementById("destination").value;
+            const mode = document.getElementById("mode").value;
+            // Redirect to results page with query parameters
+            window.location.href = `/results.html?origin=${origin}&destination=${destination}`;
+        });
+        document.getElementById("searchForm").addEventListener("submit", (e) => {
+    e.preventDefault();
+
+    // Collect form values
+    const origin = document.getElementById("origin").value;
+    const destination = document.getElementById("destination").value;
+    const departureDate = document.getElementById("departureDate").value;
+    const mode = document.getElementById("mode").value;
+    const maxPrice = document.getElementById("maxPrice").value;
+    const sortBy = document.getElementById("sortBy").value;
+
+    // Redirect with query parameters
+    window.location.href = `/results.html?origin=${origin}&destination=${destination}&mode=${mode}&maxPrice=${maxPrice}&sortBy=${sortBy}`;
+});
+
+// Predefined list of random locations
+const locations = [
+    "London",
+    "Paris",
+    "Berlin",
+    "Milan",
+    "San Francisco",
+    "Amsterdam",
+    "Florence",
+    "Tokyo",
+    "Sydney",
+    "New York"
+];
+
+// Handle Random Button Click
+document.getElementById("randomButton").addEventListener("click", () => {
+    // Pick a random location from the array
+    const randomIndex = Math.floor(Math.random() * locations.length);
+    const randomDestination = locations[randomIndex];
+
+    // Set the value of the destination input field
+    document.getElementById("destination").value = randomDestination;
+});
+// minimum departure date to be present day
+const today = new Date().toISOString().split('T')[0];
+document.getElementById("departureDate").setAttribute("min", today);
+
+
+// Handle Form Submission
+document.getElementById("searchForm").addEventListener("submit", (e) => {
+    e.preventDefault(); // Prevent the default page reload behavior
+
+    // Get form values
+    const origin = document.getElementById("origin").value;
+    const destination = document.getElementById("destination").value;
+    const mode = document.getElementById("mode").value;
+    const maxPrice = document.getElementById("maxPrice").value;
+    const departureDate = document.getElementById("departureDate").value;
+    const sortBy = document.getElementById("sortBy").value;
+
+    // Redirect to results page with query parameters
+    window.location.href = `/results.html?origin=${origin}&destination=${destination}&mode=${mode}&maxPrice=${maxPrice}&sortBy=${sortBy}`;
+});
+
+  
+    </script>
+    <link rel="stylesheet" href="styles.css">
+
+    <script src="script.js"></script>
+
+</body>
+</html>
