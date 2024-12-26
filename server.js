@@ -73,13 +73,12 @@ app.get("/search", async (req, res) => {
         if (departureDate) query.departureDate = departureDate;
 
         // Perform search in the database
-        let results = await Travel.find(query);
-
+    
         // Sorting logic using MongoDB
-        if (sortBy) {
-            const sortOption = sortBy === "price" ? { price: 1 } : { duration: 1 };
-            results = await Travel.find(query).sort(sortOption);
-        }
+        
+        const sortOption = sortBy === "price" ? { price: 1 } : sortBy === "duration" ? { duration: 1 } : {};
+let results = await Travel.find(query).sort(sortOption);
+
 
         // Return results
         if (results.length > 0) {
@@ -96,6 +95,10 @@ app.get("/search", async (req, res) => {
 // 404 Route - Handle invalid endpoints
 app.use((req, res) => {
     res.status(404).json({ error: "Route not found" });
+});
+
+app.get("/test", (req, res) => {
+    res.send("Test route is working!");
 });
 
 // Start the server
